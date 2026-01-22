@@ -1,62 +1,37 @@
-import sqlite3
-from flask import Flask, render_template, request, url_for, flash, redirect
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter une tâche</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4; }
+        .form-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;}
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #218838; }
+        .retour { display: block; text-align: center; margin-top: 15px; color: #666; }
+    </style>
+</head>
+<body>
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'votre_cle_secrete_ici'
+<div class="form-container">
+    <h2>Nouvelle Tâche</h2>
+    
+    <form method="post">
+        <label for="titre">Titre de la tâche *</label>
+        <input type="text" name="titre" placeholder="Ex: Faire les courses" required>
 
-def get_db_connection():
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    return conn
+        <label for="description">Description</label>
+        <textarea name="description" rows="4" placeholder="Détails de la tâche..."></textarea>
 
-# 1. Page d'accueil : Afficher les tâches [cite: 7, 13]
-@app.route('/')
-def index():
-    conn = get_db_connection()
-    # On récupère toutes les tâches
-    taches = conn.execute('SELECT * FROM taches').fetchall()
-    conn.close()
-    return render_template('index.html', taches=taches)
+        <label for="date_echeance">Date d'échéance</label>
+        <input type="date" name="date_echeance">
 
-# 2. Ajouter une tâche [cite: 6, 13]
-@app.route('/ajouter', methods=('GET', 'POST'))
-def ajouter():
-    if request.method == 'POST':
-        titre = request.form['titre']
-        description = request.form['description']
-        date = request.form['date_echeance']
+        <button type="submit">Enregistrer la tâche</button>
+    </form>
 
-        if not titre:
-            flash('Le titre est obligatoire!')
-        else:
-            conn = get_db_connection()
-            conn.execute('INSERT INTO taches (titre, description, date_echeance) VALUES (?, ?, ?)',
-                         (titre, description, date))
-            conn.commit()
-            conn.close()
-            return redirect(url_for('index'))
-            
-    return render_template('ajouter.html')
+    <a href="{{ url_for('index') }}" class="retour">← Retour à la liste</a>
+</div>
 
-# 3. Supprimer une tâche 
-@app.route('/supprimer/<int:id>', methods=('POST',))
-def supprimer(id):
-    conn = get_db_connection()
-    conn.execute('DELETE FROM taches WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
-    flash('Tâche supprimée!')
-    return redirect(url_for('index'))
-
-# 4. Marquer comme terminée 
-@app.route('/terminer/<int:id>', methods=('POST',))
-def terminer(id):
-    conn = get_db_connection()
-    # On met à jour le statut à 1 (Vrai)
-    conn.execute('UPDATE taches SET est_terminee = 1 WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('index'))
-
-if __name__ == '__main__':
-    app.run(debug=True)
+</body>
+</html>
