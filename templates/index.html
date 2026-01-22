@@ -1,0 +1,19 @@
+<h1>Liste des tâches</h1>
+{% for tache in taches %}
+    <div class="tache">
+        <h3 style="text-decoration: {% if tache['est_terminee'] %}line-through{% else %}none{% endif %}">
+            {{ tache['titre'] }}
+        </h3>
+        <p>{{ tache['description'] }}</p>
+        <p>Pour le : {{ tache['date_echeance'] }}</p>
+        
+        <form action="{{ url_for('terminer', id=tache['id']) }}" method="POST">
+            <button type="submit">Terminer</button>
+        </form>
+
+        <form action="{{ url_for('supprimer', id=tache['id']) }}" method="POST">
+            <button type="submit">Supprimer</button>
+        </form>
+    </div>
+    <hr>
+{% endfor %}
